@@ -1,0 +1,1985 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบตรวจสอบสถานะไฟฟ้าส่องสว่าง - Zimpligital Cybersec 2027</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts Prompt -->
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Prompt', 'sans-serif'],
+          },
+          colors: {
+            cyber: {
+              950: '#060913',
+              900: '#0b1120',
+              800: '#11192e',
+              700: '#1a2642',
+              600: '#23355c',
+              blue: '#00f0ff',
+              indigo: '#4f46e5',
+              glow: '#3b82f6'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Global Cyber Digital Indigo Glow & Grid Effects */
+    body {
+      background-color: #060913;
+      color: #e2e8f0;
+      font-family: 'Prompt', sans-serif;
+      overflow-x: hidden;
+    }
+    
+    .cyber-bg-grid {
+      background-image: 
+        linear-gradient(to right, rgba(0, 240, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+
+    .cyber-card {
+      background: rgba(11, 17, 32, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 240, 255, 0.18);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 240, 255, 0.05);
+    }
+
+    .cyber-card-glow {
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.25), inset 0 0 10px rgba(0, 240, 255, 0.1);
+    }
+
+    /* Pulsating dots for street light statuses */
+    .status-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: inline-block;
+      position: relative;
+    }
+    .status-dot::after {
+      content: '';
+      position: absolute;
+      top: -3px; left: -3px; right: -3px; bottom: -3px;
+      border-radius: 50%;
+      animation: pulse-ring 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+
+    /* Status Colors */
+    .status-normal { background-color: #10b981; box-shadow: 0 0 10px #10b981; }
+    .status-normal::after { border: 2px solid #10b981; }
+
+    .status-off { background-color: #ef4444; box-shadow: 0 0 10px #ef4444; }
+    .status-off::after { border: 2px solid #ef4444; }
+
+    .status-blink { background-color: #eab308; box-shadow: 0 0 10px #eab308; }
+    .status-blink::after { border: 2px solid #eab308; }
+
+    .status-low { background-color: #f97316; box-shadow: 0 0 10px #f97316; }
+    .status-low::after { border: 2px solid #f97316; }
+
+    .status-offline { background-color: #991b1b; box-shadow: 0 0 10px #dc2626; }
+    .status-offline::after { border: 2px solid #dc2626; }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(0.9); opacity: 0.8; }
+      50% { transform: scale(1.4); opacity: 0.2; }
+      100% { transform: scale(0.9); opacity: 0.8; }
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0b1120; }
+    ::-webkit-scrollbar-thumb { background: #1a2642; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #00f0ff; }
+  </style>
+</head>
+<body class="cyber-bg-grid min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+
+  <!-- APP CONTAINER -->
+  <div id="app" class="flex-1 flex flex-col">
+
+    <!-- ========================================== -->
+    <!-- หน้าต่างที่ 1: ฟอร์มเข้าสู่ระบบ (Login View)    -->
+    <!-- ========================================== -->
+    <div id="view-login" class="flex-1 flex flex-col justify-center items-center p-4 relative">
+      <!-- Cyber Glow Background Decoration -->
+      <div class="absolute w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+      <div class="absolute w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl -z-10 pointer-events-none top-1/3 left-1/4"></div>
+
+      <div class="w-full max-w-md cyber-card rounded-2xl p-8 border border-cyan-500/30 relative">
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-400/40 mb-4 text-cyan-400 text-3xl shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+            <i class="fa-solid fa-lightbulb"></i>
+          </div>
+          <h1 class="text-2xl font-bold tracking-wide text-white drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]">
+            ระบบตรวจสอบสถานะไฟฟ้าส่องสว่าง
+          </h1>
+          <p class="text-xs text-cyan-400/80 mt-1 uppercase tracking-widest">Smart Streetlight Control Center 2027</p>
+        </div>
+
+        <form id="login-form" onsubmit="handleLogin(event)" class="space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-cyan-200 mb-1">Username</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-cyan-400/60">
+                <i class="fa-solid fa-user"></i>
+              </span>
+              <input type="text" id="login-username" required placeholder="ป้อน Username"
+                class="w-full pl-10 pr-4 py-2.5 bg-slate-900/90 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-cyan-200 mb-1">Password</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-cyan-400/60">
+                <i class="fa-solid fa-lock"></i>
+              </span>
+              <input type="password" id="login-password" required placeholder="ป้อน Password"
+                class="w-full pl-10 pr-4 py-2.5 bg-slate-900/90 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition">
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-2">
+            <button type="button" onclick="openForgotPasswordModal()" class="text-xs text-cyan-400 hover:text-cyan-300 transition">
+              <i class="fa-solid fa-key mr-1"></i> Forgot Password?
+            </button>
+          </div>
+
+          <button type="submit"
+            class="w-full py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold rounded-lg shadow-[0_0_20px_rgba(0,240,255,0.4)] transition duration-200 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-right-to-bracket"></i> OK
+          </button>
+        </form>
+      </div>
+
+      <div class="mt-8 text-center text-xs text-slate-400 tracking-wider">
+        Copyright by Zimpligital Cybersec 2027
+      </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- หน้า 2: DASHBOARD รวม (Main Layout)         -->
+    <!-- ========================================== -->
+    <div id="view-dashboard" class="hidden flex-1 flex flex-col md:flex-row min-h-screen">
+      <!-- SIDEBAR (หน้า 2 เมนู 1-7) -->
+      <aside class="w-full md:w-64 bg-slate-950/95 border-b md:border-b-0 md:border-r border-cyan-500/20 p-4 flex flex-col justify-between shrink-0">
+        <div>
+          <!-- Header Logo -->
+          <div class="flex items-center gap-3 px-2 py-3 mb-6 border-b border-slate-800">
+            <i class="fa-solid fa-bolt text-cyan-400 text-2xl animate-pulse"></i>
+            <div>
+              <h2 class="font-bold text-white text-sm leading-tight">ระบบไฟฟ้าส่องสว่าง</h2>
+              <span class="text-[10px] text-cyan-400 tracking-widest uppercase">Zimpligital System</span>
+            </div>
+          </div>
+
+          <!-- User Badge -->
+          <div class="px-3 py-2 mb-6 bg-slate-900/80 rounded-lg border border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-2 overflow-hidden">
+              <div class="w-7 h-7 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs">
+                <i class="fa-solid fa-user"></i>
+              </div>
+              <div class="truncate">
+                <p id="user-display-name" class="text-xs font-semibold text-white truncate">User</p>
+                <p id="user-display-role" class="text-[10px] text-cyan-400 truncate">Role</p>
+              </div>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>
+          </div>
+
+          <!-- Navigation Menus -->
+          <nav class="space-y-1">
+            <button onclick="switchDashboardTab('overview')" id="nav-btn-overview"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-cyan-500/10 hover:text-cyan-400 transition text-left active">
+              <i class="fa-solid fa-chart-pie w-5 text-center text-cyan-400"></i>
+              <span>1. ภาพรวมสถานะไฟฟ้า</span>
+            </button>
+            <button onclick="switchDashboardTab('installation')" id="nav-btn-installation"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-cyan-500/10 hover:text-cyan-400 transition text-left">
+              <i class="fa-solid fa-map-location-dot w-5 text-center text-cyan-400"></i>
+              <span>2. จุดติดตั้งไฟฟ้า</span>
+            </button>
+            <button onclick="switchDashboardTab('fixture-detail')" id="nav-btn-fixture-detail"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-cyan-500/10 hover:text-cyan-400 transition text-left">
+              <i class="fa-solid fa-sliders w-5 text-center text-cyan-400"></i>
+              <span>3. ข้อมูลโคมไฟฟ้า</span>
+            </button>
+            <button onclick="switchDashboardTab('reports')" id="nav-btn-reports"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-cyan-500/10 hover:text-cyan-400 transition text-left">
+              <i class="fa-solid fa-file-invoice w-5 text-center text-cyan-400"></i>
+              <span>4. สร้างรายงาน</span>
+            </button>
+            <button onclick="switchDashboardTab('manual')" id="nav-btn-manual"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-cyan-500/10 hover:text-cyan-400 transition text-left">
+              <i class="fa-solid fa-book-open w-5 text-center text-cyan-400"></i>
+              <span>5. คู่มือการใช้งาน</span>
+            </button>
+            <button onclick="handleAdminMenuClick()" id="nav-btn-admin"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-amber-400 hover:bg-amber-500/10 transition text-left border border-amber-500/20 mt-2">
+              <i class="fa-solid fa-user-shield w-5 text-center text-amber-400"></i>
+              <span>6. Administrator</span>
+            </button>
+          </nav>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800">
+          <button onclick="handleLogout()"
+            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-rose-400 hover:bg-rose-500/10 transition text-left">
+            <i class="fa-solid fa-right-from-bracket w-5 text-center"></i>
+            <span>7. ออกจากโปรแกรม</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT AREA -->
+      <main class="flex-1 p-4 md:p-6 overflow-y-auto">
+
+        <!-- TAB 1: ภาพรวมสถานะไฟฟ้าส่องสว่าง (Overview Table) -->
+        <div id="tab-overview" class="dashboard-tab-content space-y-4">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/60 p-4 rounded-xl border border-cyan-500/20">
+            <div>
+              <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-cyan-400"></i> ภาพรวมสถานะไฟฟ้าส่องสว่าง
+              </h2>
+              <p class="text-xs text-slate-400">รายการจำลองโคมไฟฟ้าส่องสว่างสาธารณะทั้งหมด (SL-001 - SL-180)</p>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-3">
+              <div class="relative">
+                <input type="text" id="overview-search" oninput="renderOverviewTable()" placeholder="ค้นหารหัส / ถนน..."
+                  class="bg-slate-950 border border-slate-700 text-xs text-white rounded-lg pl-8 pr-3 py-2 focus:border-cyan-400 focus:outline-none">
+                <i class="fa-solid fa-search absolute left-2.5 top-2.5 text-slate-500 text-xs"></i>
+              </div>
+              <select id="overview-filter-status" onchange="renderOverviewTable()"
+                class="bg-slate-950 border border-slate-700 text-xs text-white rounded-lg px-3 py-2 focus:border-cyan-400 focus:outline-none">
+                <option value="ALL">สถานะทั้งหมด</option>
+                <option value="ปกติ">ปกติ / สว่างปกติ</option>
+                <option value="ไฟกระพริบ">ไฟกระพริบ</option>
+                <option value="สว่างปานกลาง">สว่างปานกลาง / แสงน้อย</option>
+                <option value="ไฟดับ">ไฟดับ</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Status Summary Cards -->
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div class="cyber-card p-3 rounded-xl border-l-4 border-l-emerald-500">
+              <span class="text-xs text-slate-400">สว่างปกติ</span>
+              <p id="stat-normal-count" class="text-xl font-bold text-emerald-400">0</p>
+            </div>
+            <div class="cyber-card p-3 rounded-xl border-l-4 border-l-amber-500">
+              <span class="text-xs text-slate-400">ไฟกระพริบ</span>
+              <p id="stat-blink-count" class="text-xl font-bold text-amber-400">0</p>
+            </div>
+            <div class="cyber-card p-3 rounded-xl border-l-4 border-l-orange-500">
+              <span class="text-xs text-slate-400">สว่างปานกลาง/น้อย</span>
+              <p id="stat-low-count" class="text-xl font-bold text-orange-400">0</p>
+            </div>
+            <div class="cyber-card p-3 rounded-xl border-l-4 border-l-rose-500">
+              <span class="text-xs text-slate-400">ไฟดับ</span>
+              <p id="stat-off-count" class="text-xl font-bold text-rose-400">0</p>
+            </div>
+            <div class="cyber-card p-3 rounded-xl border-l-4 border-l-cyan-500">
+              <span class="text-xs text-slate-400">รวมทั้งหมด</span>
+              <p id="stat-total-count" class="text-xl font-bold text-cyan-400">180</p>
+            </div>
+          </div>
+
+          <!-- Table Overview -->
+          <div class="cyber-card rounded-xl overflow-hidden border border-cyan-500/20">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-900/90 text-cyan-300 uppercase tracking-wider border-b border-slate-800">
+                  <tr>
+                    <th class="p-3">ชื่อโคมไฟฟ้า</th>
+                    <th class="p-3">สถานที่ติดตั้ง</th>
+                    <th class="p-3 text-center">สถานะไฟฟ้าส่องสว่าง</th>
+                    <th class="p-3 text-center">กำลังไฟ</th>
+                    <th class="p-3 text-right">ดูข้อมูลโคมไฟฟ้า</th>
+                  </tr>
+                </thead>
+                <tbody id="overview-table-body" class="divide-y divide-slate-800/60 text-slate-200">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+            <!-- Pagination Controls -->
+            <div class="p-3 bg-slate-950/80 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+              <div id="overview-page-info">แสดง 1 - 20 จาก 180 รายการ</div>
+              <div class="flex items-center gap-2">
+                <button onclick="changeOverviewPage(-1)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded transition">ก่อนหน้า</button>
+                <span id="overview-page-num" class="px-2 font-bold text-cyan-400">1</span>
+                <button onclick="changeOverviewPage(1)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded transition">ถัดไป</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: จุดติดตั้งไฟฟ้าส่องสว่าง (Installation Map / Grid) -->
+        <div id="tab-installation" class="dashboard-tab-content hidden space-y-4">
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-cyan-500/20">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-map-location-dot text-cyan-400"></i> จุดติดตั้งไฟฟ้าส่องสว่าง
+            </h2>
+            <p class="text-xs text-slate-400">แผนผังจำลองจุดติดตั้งโคมไฟฟ้าส่องสว่างจำแนกตามพื้นที่ซอย/ถนน</p>
+          </div>
+
+          <div id="installation-street-groups" class="space-y-4">
+            <!-- Rendered dynamically by street -->
+          </div>
+        </div>
+
+        <!-- TAB 3: ข้อมูลโคมไฟฟ้า (Fixture Details & Brightness Adjustment) -->
+        <div id="tab-fixture-detail" class="dashboard-tab-content hidden space-y-4">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900/60 p-4 rounded-xl border border-cyan-500/20">
+            <div>
+              <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-cyan-400"></i> ข้อมูลโคมไฟฟ้า
+              </h2>
+              <p class="text-xs text-slate-400">ตรวจสอบและปรับตั้งค่าระดับกำลังไฟฟ้า / ความสว่างโคมไฟ</p>
+            </div>
+            
+            <!-- BUTTON: แจ้งปัญหา (Top Right) -->
+            <button onclick="openProblemReportModal()"
+              class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-400 hover:to-rose-500 text-white font-bold text-sm rounded-lg shadow-[0_0_15px_rgba(245,158,11,0.4)] transition flex items-center gap-2">
+              <i class="fa-solid fa-triangle-exclamation"></i> แจ้งปัญหา
+            </button>
+          </div>
+
+          <!-- Selector -->
+          <div class="cyber-card p-4 rounded-xl flex items-center gap-3">
+            <label class="text-xs font-semibold text-cyan-300">เลือกโคมไฟฟ้า:</label>
+            <select id="fixture-selector" onchange="loadFixtureDetail(this.value)"
+              class="bg-slate-950 border border-slate-700 text-white rounded-lg text-xs px-3 py-2 focus:border-cyan-400 focus:outline-none flex-1 max-w-xs">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+
+          <!-- Details Display Card -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Left Info Panel -->
+            <div class="cyber-card p-6 rounded-2xl space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <span class="text-xs text-slate-400 uppercase tracking-wider">รหัสโคมไฟฟ้า</span>
+                <span id="detail-code" class="text-xl font-bold text-cyan-400">SL-001</span>
+              </div>
+
+              <div class="space-y-3 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-slate-400">สถานที่ติดตั้ง:</span>
+                  <span id="detail-location" class="font-medium text-white">ซ.บ้านสวน-พระยาสัจจา 31</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">แรงดันไฟฟ้า (Volt):</span>
+                  <span id="detail-volt" class="font-mono text-cyan-300">220.4 V</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">กระแสไฟฟ้า (Amp):</span>
+                  <span id="detail-amp" class="font-mono text-cyan-300">0.45 A</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">กำลังไฟฟ้า (Watt):</span>
+                  <span id="detail-power" class="font-mono text-cyan-300">99.1 W</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">อุณหภูมิสะสม:</span>
+                  <span id="detail-temp" class="font-mono text-cyan-300">38.5 °C</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">ชั่วโมงการทำงานสะสม:</span>
+                  <span id="detail-hours" class="font-mono text-cyan-300">4,280 hrs</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Controls Panel -->
+            <div class="cyber-card p-6 rounded-2xl space-y-6 flex flex-col justify-between">
+              <div>
+                <h3 class="text-base font-bold text-white mb-4 border-b border-slate-800 pb-2">
+                  <i class="fa-solid fa-sun text-amber-400 mr-2"></i> ปรับระดับความสว่าง & สถานะ
+                </h3>
+                
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-xs text-slate-400 mb-2">เลือกระดับความสว่าง:</label>
+                    <select id="detail-brightness-select" onchange="updateFixtureBrightness(this.value)"
+                      class="w-full bg-slate-950 border border-slate-700 text-white rounded-lg p-2.5 text-sm focus:border-cyan-400 focus:outline-none">
+                      <option value="100%">100%</option>
+                      <option value="75%">75%</option>
+                      <option value="60%">60%</option>
+                      <option value="50%">50%</option>
+                      <option value="20%">20%</option>
+                      <option value="10%">10%</option>
+                      <option value="0%">0%</option>
+                    </select>
+                  </div>
+
+                  <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <span class="text-xs text-slate-400">สถานะหลอดไฟแบบเรียลไทม์:</span>
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span id="detail-status-dot" class="status-dot status-normal"></span>
+                        <span id="detail-lamp-status-text" class="text-lg font-bold text-emerald-400">สว่างมาก</span>
+                      </div>
+                      <span id="detail-power-percent-badge" class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-mono">100%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-3 bg-cyan-950/30 rounded-lg border border-cyan-500/20 text-xs text-cyan-300">
+                <i class="fa-solid fa-info-circle mr-1"></i> ความสัมพันธ์สถานะ:
+                100% (สว่างมาก) | 75%, 60% (สว่าง) | 50% (สว่างปานกลาง) | 20%, 10% (สว่างน้อย) | 0% (ไม่สว่าง)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4: สร้างรายงาน (Report Generation) -->
+        <div id="tab-reports" class="dashboard-tab-content hidden space-y-4">
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-cyan-500/20">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-file-invoice text-cyan-400"></i> สร้างรายงานระบบไฟฟ้าส่องสว่าง
+            </h2>
+            <p class="text-xs text-slate-400">กำหนดเงื่อนไขและส่งออกรายงานในรูปแบบ CSV หรือ PDF</p>
+          </div>
+
+          <div class="cyber-card p-6 rounded-2xl space-y-6">
+            <!-- Checklist Selection -->
+            <div class="space-y-4">
+              <h3 class="text-sm font-bold text-cyan-300 uppercase tracking-wider">1. เลือกประเภทรายงาน</h3>
+              
+              <div class="space-y-3 pl-2">
+                <label class="flex items-center gap-3 text-slate-200 text-sm cursor-pointer">
+                  <input type="checkbox" id="rpt-chk-status" checked class="w-4 h-4 rounded text-cyan-500 bg-slate-950 border-slate-700 focus:ring-cyan-400">
+                  <span>รายงานสถานะไฟฟ้าส่องสว่าง</span>
+                </label>
+
+                <div class="space-y-2 pl-6 border-l border-slate-800">
+                  <span class="text-xs text-slate-400 block font-medium">รายงานไฟฟ้าส่องสว่างที่มีปัญหา:</span>
+                  <div class="flex flex-wrap gap-4 text-xs text-slate-300">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" id="rpt-chk-off" checked class="rounded text-rose-500 bg-slate-950"> ไฟดับ
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" id="rpt-chk-blink" checked class="rounded text-amber-500 bg-slate-950"> ไฟกระพริบ
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" id="rpt-chk-low" checked class="rounded text-orange-500 bg-slate-950"> ไฟฟ้าสว่างน้อย
+                    </label>
+                  </div>
+                </div>
+
+                <div class="space-y-2 pl-6 border-l border-slate-800 pt-2">
+                  <span class="text-xs text-slate-400 block font-medium">รายงานสถานะการให้บริการของผู้ให้บริการ:</span>
+                  <div class="flex flex-wrap gap-4 text-xs text-slate-300">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" id="rpt-chk-wait" checked class="rounded text-yellow-500 bg-slate-950"> ระหว่างรอปฏิบัติงาน
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" id="rpt-chk-pending" checked class="rounded text-orange-500 bg-slate-950"> รอดำเนินการ
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" id="rpt-chk-done" checked class="rounded text-emerald-500 bg-slate-950"> ปฏิบัติงานเสร็จเรียบร้อย
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" id="rpt-chk-sla" checked class="rounded text-rose-500 bg-slate-950"> เลยกำหนด SLA
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Date & Time Range Selection -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-800">
+              <div>
+                <h3 class="text-sm font-bold text-cyan-300 uppercase tracking-wider mb-3">2. เลือกช่วงเวลาการออกรายงาน</h3>
+                <div class="flex items-center gap-4">
+                  <label class="flex items-center gap-2 text-sm text-slate-200 cursor-pointer">
+                    <input type="radio" name="rpt-period" value="daily" checked class="text-cyan-500 bg-slate-950"> รายวัน
+                  </label>
+                  <label class="flex items-center gap-2 text-sm text-slate-200 cursor-pointer">
+                    <input type="radio" name="rpt-period" value="weekly" class="text-cyan-500 bg-slate-950"> รายสัปดาห์
+                  </label>
+                  <label class="flex items-center gap-2 text-sm text-slate-200 cursor-pointer">
+                    <input type="radio" name="rpt-period" value="monthly" class="text-cyan-500 bg-slate-950"> รายเดือน
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <h3 class="text-sm font-bold text-cyan-300 uppercase tracking-wider mb-3">3. เลือกวันที่ต้องการ</h3>
+                <input type="date" id="rpt-date-picker"
+                  class="bg-slate-950 border border-slate-700 text-white rounded-lg p-2.5 text-sm focus:border-cyan-400 focus:outline-none">
+              </div>
+            </div>
+
+            <!-- Print / Export Buttons -->
+            <div class="pt-6 border-t border-slate-800 flex flex-wrap gap-4 justify-end">
+              <button onclick="exportReport('CSV')"
+                class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-sm shadow-[0_0_15px_rgba(16,185,129,0.3)] transition flex items-center gap-2">
+                <i class="fa-solid fa-file-csv"></i> ส่งออกไฟล์ CSV
+              </button>
+              <button onclick="exportReport('PDF')"
+                class="px-6 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-lg text-sm shadow-[0_0_15px_rgba(244,63,94,0.3)] transition flex items-center gap-2">
+                <i class="fa-solid fa-file-pdf"></i> พิมพ์รายงาน (PDF)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 5: คู่มือการใช้งาน (User Manual) -->
+        <div id="tab-manual" class="dashboard-tab-content hidden space-y-4">
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-cyan-500/20">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-book-open text-cyan-400"></i> คู่มือการใช้งานระบบ
+            </h2>
+            <p class="text-xs text-slate-400">ข้อแนะนำและวิธีการใช้งานระบบตรวจสอบสถานะไฟฟ้าส่องสว่าง</p>
+          </div>
+
+          <div class="cyber-card p-6 rounded-2xl space-y-6 text-slate-300 text-sm leading-relaxed">
+            <section class="space-y-2 border-b border-slate-800 pb-4">
+              <h3 class="text-base font-bold text-cyan-300 flex items-center gap-2">
+                <i class="fa-solid fa-circle-info text-cyan-400"></i> 1. ภาพรวมระบบ
+              </h3>
+              <p>ระบบตรวจสอบสถานะไฟฟ้าส่องสว่างถูกออกแบบมาเพื่อรองรับการเฝ้าระวัง ตรวจสอบ และบริหารจัดการระบบโคมไฟฟ้าสาธารณะบนท้องถนนแบบ Real-time โดยรองรับการเข้าใช้งานหลายระดับสิทธิ์ ได้แก่ ผู้ใช้งานทั่วไป ผู้ตรวจสอบ และผู้ดูแลระบบ (Admin)</p>
+            </section>
+
+            <section class="space-y-2 border-b border-slate-800 pb-4">
+              <h3 class="text-base font-bold text-cyan-300 flex items-center gap-2">
+                <i class="fa-solid fa-palette text-amber-400"></i> 2. สัญลักษณ์สีสถานะโคมไฟ
+              </h3>
+              <ul class="list-disc pl-5 space-y-1 text-xs">
+                <li><span class="text-emerald-400 font-bold">สีเขียว (สว่างปกติ):</span> โคมไฟทำงานสมบูรณ์ Brightness 100%</li>
+                <li><span class="text-amber-400 font-bold">สีเหลือง (ไฟกระพริบ):</span> แรงดันไฟฟ้าหรือระบบจ่ายไฟมีความผันผวน</li>
+                <li><span class="text-orange-400 font-bold">สีส้ม (สว่างปานกลาง/แสงน้อย):</span> ระดับความสว่าง 10%-50%</li>
+                <li><span class="text-rose-400 font-bold">สีแดง (ไฟดับ):</span> โคมไฟชำรุด หรือไม่มีกระแสไฟฟ้าจ่ายเข้าโคมไฟ (0%)</li>
+              </ul>
+            </section>
+
+            <section class="space-y-2 border-b border-slate-800 pb-4">
+              <h3 class="text-base font-bold text-cyan-300 flex items-center gap-2">
+                <i class="fa-solid fa-wrench text-rose-400"></i> 3. ขั้นตอนการแจ้งปัญหาและส่งงานซ่อม
+              </h3>
+              <ol class="list-decimal pl-5 space-y-1 text-xs">
+                <li>ไปที่เมนู 3 "ข้อมูลโคมไฟฟ้า" แล้วคลิกปุ่ม <strong class="text-amber-400">"แจ้งปัญหา"</strong></li>
+                <li>ในหน้าแจ้งปัญหา ให้เลือกโคมไฟที่สว่างน้อยกว่า 100% แล้วกด <strong class="text-cyan-400">"แจ้งซ่อม"</strong></li>
+                <li>เลือกบริษัทผู้ให้บริการ (Outsource) ที่รับผิดชอบพื้นที่ กด <strong class="text-emerald-400">"ยืนยันการเลือก"</strong> แล้วระบุ Email เพื่อส่งงาน</li>
+                <li>ติดตามสถานะในเมนู 2 "ตรวจสอบสถานะการดำเนินการ" และปิดงานพร้อมประเมิน KPI ในเมนู 3 "ปิดงาน"</li>
+              </ol>
+            </section>
+
+            <section class="space-y-2">
+              <h3 class="text-base font-bold text-cyan-300 flex items-center gap-2">
+                <i class="fa-solid fa-user-shield text-purple-400"></i> 4. การจัดการระบบสำหรับ Administrator
+              </h3>
+              <p class="text-xs">สิทธิ์ Admin สามารถเพิ่ม/ลบผู้ใช้งาน, จัดการเพิ่ม/ลบโคมไฟฟ้า, ตั้งค่า Log Server และบริหารจัดการบริษัทผู้ให้บริการภายนอก (Outsource Management) ได้ในเมนู Administrator</p>
+            </section>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- หน้า 3: ADMINISTRATOR VIEW                 -->
+    <!-- ========================================== -->
+    <div id="view-admin" class="hidden flex-1 flex flex-col md:flex-row min-h-screen">
+      <!-- ADMIN SIDEBAR -->
+      <aside class="w-full md:w-64 bg-slate-950/95 border-b md:border-b-0 md:border-r border-amber-500/30 p-4 flex flex-col justify-between shrink-0">
+        <div>
+          <!-- Header Logo -->
+          <div class="flex items-center gap-3 px-2 py-3 mb-6 border-b border-amber-500/30">
+            <i class="fa-solid fa-user-shield text-amber-400 text-2xl animate-pulse"></i>
+            <div>
+              <h2 class="font-bold text-white text-sm leading-tight">ADMIN CONTROL</h2>
+              <span class="text-[10px] text-amber-400 tracking-widest uppercase">ผู้ดูแลระบบ</span>
+            </div>
+          </div>
+
+          <!-- Navigation Menus -->
+          <nav class="space-y-1">
+            <button onclick="switchAdminTab('users')" id="admin-nav-users"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition text-left active">
+              <i class="fa-solid fa-users-gear w-5 text-center text-amber-400"></i>
+              <span>1. จัดการผู้ใช้งาน</span>
+            </button>
+            <button onclick="switchAdminTab('fixtures')" id="admin-nav-fixtures"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition text-left">
+              <i class="fa-solid fa-lightbulb w-5 text-center text-amber-400"></i>
+              <span>2. จัดการอุปกรณ์โคมไฟ</span>
+            </button>
+            <button onclick="switchAdminTab('alerts')" id="admin-nav-alerts"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition text-left">
+              <i class="fa-solid fa-bell w-5 text-center text-amber-400"></i>
+              <span>3. ตั้งค่าแจ้งเตือน</span>
+            </button>
+            <button onclick="switchAdminTab('logserver')" id="admin-nav-logserver"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition text-left">
+              <i class="fa-solid fa-server w-5 text-center text-amber-400"></i>
+              <span>4. Log Server</span>
+            </button>
+            <button onclick="switchAdminTab('outsource')" id="admin-nav-outsource"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-amber-500/10 hover:text-amber-400 transition text-left">
+              <i class="fa-solid fa-truck-repair w-5 text-center text-amber-400"></i>
+              <span>5. ผู้ให้บริการภายนอก</span>
+            </button>
+          </nav>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800">
+          <button onclick="exitAdminView()"
+            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-cyan-400 hover:bg-cyan-500/10 transition text-left">
+            <i class="fa-solid fa-arrow-left-long w-5 text-center"></i>
+            <span>6. ออก (กลับ Dashboard)</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- ADMIN MAIN CONTENT -->
+      <main class="flex-1 p-4 md:p-6 overflow-y-auto">
+
+        <!-- ADMIN TAB 1: จัดการผู้ใช้งาน -->
+        <div id="admin-tab-users" class="admin-tab-content space-y-6">
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-amber-500/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-users-gear text-amber-400"></i> 1. จัดการผู้ใช้งานระบบ
+              </h2>
+              <p class="text-xs text-slate-400">ตรวจสอบ แก้ไข และเพิ่มผู้ใช้งานใหม่</p>
+            </div>
+            
+            <button onclick="openAddUserModal()"
+              class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-lg shadow-[0_0_15px_rgba(245,158,11,0.3)] transition flex items-center gap-2">
+              <i class="fa-solid fa-user-plus"></i> เพิ่มผู้ใช้งาน
+            </button>
+          </div>
+
+          <!-- User Table -->
+          <div class="cyber-card rounded-xl overflow-hidden border border-amber-500/20">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-900/90 text-amber-300 uppercase tracking-wider border-b border-slate-800">
+                  <tr>
+                    <th class="p-3">เลขที่ผู้ใช้งาน</th>
+                    <th class="p-3">ชื่อ นามสกุล</th>
+                    <th class="p-3">แผนก</th>
+                    <th class="p-3">Username</th>
+                    <th class="p-3">สิทธิการใช้งาน</th>
+                    <th class="p-3">สถานะ</th>
+                    <th class="p-3 text-right">จัดการผู้ใช้</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-users-table-body" class="divide-y divide-slate-800/60 text-slate-200">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN TAB 2: จัดการอุปกรณ์โคมไฟฟ้า -->
+        <div id="admin-tab-fixtures" class="admin-tab-content hidden space-y-6">
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-amber-500/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-lightbulb text-amber-400"></i> 2. จัดการอุปกรณ์โคมไฟฟ้า
+              </h2>
+              <p class="text-xs text-slate-400">แสดงและจัดการอุปกรณ์โคมไฟฟ้าทั้งหมด 180 ดวง</p>
+            </div>
+
+            <button onclick="openAddFixtureModal()"
+              class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-lg shadow-[0_0_15px_rgba(245,158,11,0.3)] transition flex items-center gap-2">
+              <i class="fa-solid fa-plus"></i> เพิ่มโคมไฟฟ้า
+            </button>
+          </div>
+
+          <div class="cyber-card rounded-xl overflow-hidden border border-amber-500/20">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-900/90 text-amber-300 uppercase tracking-wider border-b border-slate-800">
+                  <tr>
+                    <th class="p-3">ลำดับ / ชื่อโคมไฟฟ้า</th>
+                    <th class="p-3">สถานที่ติดตั้ง</th>
+                    <th class="p-3">สถานะการทำงาน</th>
+                    <th class="p-3 text-right">จัดการ (ลบ)</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-fixtures-table-body" class="divide-y divide-slate-800/60 text-slate-200">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN TAB 3: ตั้งค่าสถานะการแจ้งเตือน -->
+        <div id="admin-tab-alerts" class="admin-tab-content hidden space-y-6">
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-amber-500/30">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-bell text-amber-400"></i> 3. ตั้งค่าสถานะการแจ้งเตือน
+            </h2>
+            <p class="text-xs text-slate-400">ตั้งค่าพารามิเตอร์เกณฑ์การแจ้งเตือนความผิดปกติของกำลังไฟฟ้า</p>
+          </div>
+
+          <div class="cyber-card p-6 rounded-2xl space-y-4 max-w-xl">
+            <div>
+              <label class="block text-xs font-medium text-amber-200 mb-1">เกณฑ์แจ้งเตือนแรงดันไฟฟ้าตก (Low Voltage Threshold)</label>
+              <input type="number" value="180" class="w-full bg-slate-950 border border-slate-700 text-white rounded-lg p-2.5 text-sm">
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-amber-200 mb-1">เกณฑ์เวลา SLA ในการแก้ไขงานซ่อม (ชั่วโมง)</label>
+              <input type="number" value="24" class="w-full bg-slate-950 border border-slate-700 text-white rounded-lg p-2.5 text-sm">
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-amber-200 mb-1">Email ผู้ดูแลรับแจ้งเตือนวิกฤต</label>
+              <input type="email" value="admin-alert@zimpligital.com" class="w-full bg-slate-950 border border-slate-700 text-white rounded-lg p-2.5 text-sm">
+            </div>
+
+            <button onclick="alertModal('บันทึกการตั้งค่าสถานะแจ้งเตือนเรียบร้อยแล้ว')"
+              class="px-6 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-lg shadow-md transition">
+              บันทึกการตั้งค่า
+            </button>
+          </div>
+        </div>
+
+        <!-- ADMIN TAB 4: Log Server -->
+        <div id="admin-tab-logserver" class="admin-tab-content hidden space-y-6">
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-amber-500/30">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-server text-amber-400"></i> 4. Log Server Config
+            </h2>
+            <p class="text-xs text-slate-400">เชื่อมต่อระบบจัดเก็บ Log การทำงานทางไฟฟ้า</p>
+          </div>
+
+          <form onsubmit="handleLogServerSave(event)" class="cyber-card p-6 rounded-2xl space-y-4 max-w-md">
+            <div>
+              <label class="block text-xs font-medium text-amber-200 mb-1">L1: IP Address</label>
+              <input type="text" id="log-ip" required value="192.168.100.250" placeholder="e.g. 192.168.1.100"
+                class="w-full bg-slate-950 border border-slate-700 text-white rounded-lg p-2.5 text-sm focus:border-amber-400 focus:outline-none">
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-amber-200 mb-1">L2: Username</label>
+              <input type="text" id="log-user" required value="syslog_admin" placeholder="username"
+                class="w-full bg-slate-950 border border-slate-700 text-white rounded-lg p-2.5 text-sm focus:border-amber-400 focus:outline-none">
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-amber-200 mb-1">L3: Password</label>
+              <input type="password" id="log-pass" required value="logpass2027" placeholder="password"
+                class="w-full bg-slate-950 border border-slate-700 text-white rounded-lg p-2.5 text-sm focus:border-amber-400 focus:outline-none">
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+              <button type="submit" class="px-6 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-lg transition">OK</button>
+              <button type="button" onclick="switchAdminTab('users')" class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs rounded-lg transition">ยกเลิก</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ADMIN TAB 5: จัดการ ผู้ให้บริการภายนอก (Outsource Management) -->
+        <div id="admin-tab-outsource" class="admin-tab-content hidden space-y-6">
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-amber-500/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-truck-repair text-amber-400"></i> 5. จัดการผู้ให้บริการภายนอก (Outsource Management)
+              </h2>
+              <p class="text-xs text-slate-400">รายการบริษัทผู้รับจ้างดูแลซ่อมบำรุงไฟฟ้าส่องสว่าง</p>
+            </div>
+
+            <button onclick="openAddOutsourceModal()"
+              class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-lg shadow-[0_0_15px_rgba(245,158,11,0.3)] transition flex items-center gap-2">
+              <i class="fa-solid fa-building-circle-check"></i> เพิ่มผู้รับจ้าง
+            </button>
+          </div>
+
+          <!-- Outsource Table -->
+          <div class="cyber-card rounded-xl overflow-hidden border border-amber-500/20">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-900/90 text-amber-300 uppercase tracking-wider border-b border-slate-800">
+                  <tr>
+                    <th class="p-3">ลำดับ</th>
+                    <th class="p-3">บริษัท</th>
+                    <th class="p-3">ที่ตั้ง</th>
+                    <th class="p-3">งานที่รับผิดชอบ</th>
+                    <th class="p-3">พื้นที่รับผิดชอบ 1</th>
+                    <th class="p-3">พื้นที่รับผิดชอบ 2</th>
+                    <th class="p-3 text-center">KPI คะแนน</th>
+                    <th class="p-3 text-right">จัดการผู้รับจ้าง</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-outsource-table-body" class="divide-y divide-slate-800/60 text-slate-200">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- หน้าแจ้งปัญหา (Problem Report Modal/View)    -->
+    <!-- ========================================== -->
+    <div id="modal-problem-report" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+      <div class="w-full max-w-4xl cyber-card rounded-2xl border border-rose-500/30 overflow-hidden flex flex-col max-h-[90vh]">
+        <!-- Modal Header -->
+        <div class="bg-slate-900 p-4 border-b border-slate-800 flex justify-between items-center">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation text-rose-500 text-xl"></i>
+            <h3 class="text-lg font-bold text-white">ศูนย์จัดการปัญหาและแจ้งซ่อมโคมไฟฟ้า</h3>
+          </div>
+          <button onclick="closeProblemReportModal()" class="text-slate-400 hover:text-white transition">
+            <i class="fa-solid fa-xmark text-xl"></i>
+          </button>
+        </div>
+
+        <!-- Problem Navigation Tabs (4 Menus) -->
+        <div class="bg-slate-950 border-b border-slate-800 flex flex-wrap text-xs font-semibold">
+          <button onclick="switchProblemTab('list')" id="prob-tab-btn-list"
+            class="px-4 py-3 text-rose-400 border-b-2 border-rose-500 flex items-center gap-2 hover:bg-rose-500/10 transition">
+            <i class="fa-solid fa-list-ul"></i> เมนู 1: ไฟฟ้าส่องสว่างที่มีปัญหา
+          </button>
+          <button onclick="switchProblemTab('track')" id="prob-tab-btn-track"
+            class="px-4 py-3 text-slate-400 border-b-2 border-transparent flex items-center gap-2 hover:bg-slate-800 transition">
+            <i class="fa-solid fa-spinner"></i> เมนู 2: ตรวจสอบสถานะการดำเนินการ
+          </button>
+          <button onclick="switchProblemTab('close')" id="prob-tab-btn-close"
+            class="px-4 py-3 text-slate-400 border-b-2 border-transparent flex items-center gap-2 hover:bg-slate-800 transition">
+            <i class="fa-solid fa-circle-check"></i> เมนู 3: ปิดงาน
+          </button>
+          <button onclick="closeProblemReportModal()"
+            class="px-4 py-3 text-slate-400 border-b-2 border-transparent flex items-center gap-2 hover:bg-rose-500/10 hover:text-rose-400 transition ml-auto">
+            <i class="fa-solid fa-arrow-left"></i> เมนู 4: ออกจากระบบ
+          </button>
+        </div>
+
+        <!-- Modal Content Body -->
+        <div class="p-6 overflow-y-auto flex-1 space-y-6">
+
+          <!-- PROBLEM TAB 1: ไฟฟ้าส่องสว่างที่มีปัญหา (<100%) -->
+          <div id="prob-sub-list" class="prob-tab-content space-y-4">
+            <p class="text-xs text-slate-400">รายการโคมไฟฟ้าเฉพาะที่สว่างไม่ถึง 100% เพื่อเตรียมแจ้งซ่อม:</p>
+
+            <div class="overflow-x-auto border border-slate-800 rounded-xl">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-900 text-rose-300">
+                  <tr>
+                    <th class="p-3">รหัสโคมไฟ</th>
+                    <th class="p-3">สถานที่ติดตั้ง</th>
+                    <th class="p-3">กำลังไฟ / ความสว่าง</th>
+                    <th class="p-3">สถานะหลอดไฟ</th>
+                    <th class="p-3 text-right">ดำเนินการ</th>
+                  </tr>
+                </thead>
+                <tbody id="problem-fixtures-body" class="divide-y divide-slate-800 text-slate-200">
+                  <!-- JS Rendered -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- PROBLEM TAB 2: ตรวจสอบสถานะการดำเนินการ -->
+          <div id="prob-sub-track" class="prob-tab-content hidden space-y-4">
+            <div class="flex flex-wrap gap-2 text-[11px]">
+              <span class="px-2 py-1 rounded bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">● รอยืนยันได้รับงาน</span>
+              <span class="px-2 py-1 rounded bg-orange-500/20 text-orange-300 border border-orange-500/30">● มอบหมายงานแล้ว</span>
+              <span class="px-2 py-1 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">● อยู่ระหว่างปฏิบัติงาน</span>
+              <span class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">● ปฏิบัติงานเรียบร้อย</span>
+              <span class="px-2 py-1 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">● เลยเวลา SLA</span>
+            </div>
+
+            <div class="overflow-x-auto border border-slate-800 rounded-xl">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-900 text-cyan-300">
+                  <tr>
+                    <th class="p-3">รหัสงาน</th>
+                    <th class="p-3">โคมไฟ</th>
+                    <th class="p-3">ผู้ให้บริการ</th>
+                    <th class="p-3 text-center">สถานะ</th>
+                    <th class="p-3 text-right">ตรวจสอบงาน</th>
+                  </tr>
+                </thead>
+                <tbody id="problem-track-body" class="divide-y divide-slate-800 text-slate-200">
+                  <!-- JS Rendered -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- PROBLEM TAB 3: ปิดงาน -->
+          <div id="prob-sub-close" class="prob-tab-content hidden space-y-4">
+            <p class="text-xs text-slate-400">งานที่ปฏิบัติงานเสร็จเรียบร้อยและรอการปิดงาน พร้อมให้คะแนนประเมิน:</p>
+
+            <div class="overflow-x-auto border border-slate-800 rounded-xl">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-900 text-emerald-300">
+                  <tr>
+                    <th class="p-3">รหัสงาน</th>
+                    <th class="p-3">โคมไฟ</th>
+                    <th class="p-3">ผู้ให้บริการ</th>
+                    <th class="p-3">วันที่ส่งงาน</th>
+                    <th class="p-3 text-right">ปิดงาน</th>
+                  </tr>
+                </thead>
+                <tbody id="problem-close-body" class="divide-y divide-slate-800 text-slate-200">
+                  <!-- JS Rendered -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div> <!-- END APP CONTAINER -->
+
+
+  <!-- GLOBAL GENERAL MODAL (For Alerts, Confirmation, Selection forms) -->
+  <div id="global-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div id="global-modal-card" class="w-full max-w-md cyber-card rounded-2xl p-6 border border-cyan-500/30 space-y-4">
+      <h3 id="global-modal-title" class="text-lg font-bold text-white flex items-center gap-2">
+        <i class="fa-solid fa-circle-info text-cyan-400"></i> แจ้งเตือน
+      </h3>
+      <div id="global-modal-body" class="text-sm text-slate-300">
+        <!-- Content inserted dynamically -->
+      </div>
+      <div id="global-modal-actions" class="flex justify-end gap-3 pt-2">
+        <!-- Buttons inserted dynamically -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT LOGIC                           -->
+  <!-- ========================================== -->
+  <script>
+    // ----------------------------------------------------
+    // INITIAL SYSTEM DATA STORES
+    // ----------------------------------------------------
+
+    // 1. Users Table Data (Page 3 default accounts + passwords)
+    let systemUsers = [
+      { id: 1, firstname: 'demo1', lastname: 'demo', username: 'demo1', department: 'ฝ่ายความปลอดภัย', role: 'ผู้ใช้งาน', status: 'ใช้งาน' },
+      { id: 2, firstname: 'demo2', lastname: 'demo2', username: 'demo2', department: 'ฝ่ายความปลอดภัย', role: 'ผู้ใช้งาน', status: 'ใช้งาน' },
+      { id: 3, firstname: 'boss1', lastname: 'boss', username: 'boss1', department: 'ผู้บริหาร', role: 'ผู้ตรวจสอบ', status: 'ใช้งาน' },
+      { id: 4, firstname: 'admin', lastname: 'admin', username: 'admin', department: 'ผู้ดูแลระบบ', role: 'ผู้ดูแลระบบ', status: 'ใช้งาน' }
+    ];
+
+    // Password rule: demo2027 (and applies to all)
+    const DEFAULT_PASS = 'demo2027';
+
+    // 2. Outsource Vendors Data (Page 3 default vendor list)
+    let outsourceVendors = [
+      { id: 1, company: 'ABCX Power supply', location: 'ชลบุรี', duty: 'สายไฟฟ้า', area1: 'พระยาสัจจา', area2: 'บ้านสวน', kpi: 9.2, status: 'ปกติ' },
+      { id: 2, company: 'Karn electric', location: 'เมืองชลบุรี', duty: 'หลอดไฟฟ้า', area1: 'สุขุมวิท', area2: 'หนองช้างคอก', kpi: 8.8, status: 'ปกติ' },
+      { id: 3, company: 'Aomam Service', location: 'บางแสน', duty: 'โปรแกรมระบบตรวจสอบ', area1: 'พระยาสัจจา 31-33', area2: 'สุขุมวิท 23', kpi: 9.5, status: 'ปกติ' },
+      { id: 4, company: 'Zimple Energy', location: 'ศรีราชา', duty: 'สายไฟฟ้า', area1: 'พระยาสัจจา 25-27', area2: 'สุขุมวิท 11-19', kpi: 9.0, status: 'ปกติ' }
+    ];
+
+    // 3. Full 180 Lamp Dataset (SL-001 to SL-180) based on page 4 specs
+    let fixtureList = [];
+
+    function initFixtures() {
+      fixtureList = [];
+      for (let i = 1; i <= 180; i++) {
+        let code = `SL-${String(i).padStart(3, '0')}`;
+        let location = 'ซ.บ้านสวน-สุขุมวิท 30';
+        let status = 'สว่างปกติ';
+        let powerPercent = 100;
+
+        // Map location & initial status based on Page 4 table specification
+        if (i >= 1 && i <= 10) location = 'ซ.บ้านสวน-พระยาสัจจา 31';
+        else if (i >= 11 && i <= 15) location = 'ซ.บ้านสวน-พระยาสัจจา 33';
+        else if (i >= 16 && i <= 17) { location = 'ซ.บ้านสวน-พระยาสัจจา 33'; status = 'ไฟกระพริบ'; powerPercent = 30; }
+        else if (i >= 18 && i <= 25) location = 'ซ.บ้านสวน-พระยาสัจจา 33';
+        else if (i >= 26 && i <= 30) location = 'ซ.บ้านสวน-พระยาสัจจา 27';
+        else if (i === 31) { location = 'ซ.บ้านสวน-พระยาสัจจา 27'; status = 'สว่างปานกลาง'; powerPercent = 50; }
+        else if (i === 32) { location = 'ซ.บ้านสวน-พระยาสัจจา 27'; status = 'ไฟดับ'; powerPercent = 0; }
+        else if (i === 33) { location = 'ซ.บ้านสวน-พระยาสัจจา 27'; status = 'ไฟกระพริบ'; powerPercent = 30; }
+        else if (i === 34) location = 'ซ.บ้านสวน-พระยาสัจจา 27';
+        else if (i >= 35 && i <= 47) location = 'ซ.บ้านสวน-สุขุมวิท 23';
+        else if (i === 48) { location = 'ซ.บ้านสวน-สุขุมวิท 23'; status = 'สว่างปานกลาง'; powerPercent = 50; }
+        else if (i >= 49 && i <= 55) location = 'ซ.บ้านสวน-สุขุมวิท 6';
+        else if (i >= 56 && i <= 60) location = 'ซ.บ้านสวน-พระยาสัจจา 25';
+        else if (i === 61) { location = 'ซ.บ้านสวน-พระยาสัจจา 25'; status = 'ไฟกระพริบ'; powerPercent = 30; }
+        else if (i >= 62 && i <= 68) location = 'ซ.บ้านสวน-พระยาสัจจา 25';
+        else if (i >= 69 && i <= 70) location = 'ซ.บ้านสวน-พระยาสัจจา 19';
+        else if (i === 71) { location = 'ซ.บ้านสวน-พระยาสัจจา 19'; status = 'ไฟกระพริบ'; powerPercent = 30; }
+        else if (i >= 72 && i <= 74) location = 'ซ.บ้านสวน-พระยาสัจจา 19';
+        else if (i >= 75 && i <= 83) location = 'ซ.บ้านสวน-พระยาสัจจา 15';
+        else if (i >= 84 && i <= 88) location = 'ซ.บ้านสวน-พระยาสัจจา 5';
+        else if (i >= 89 && i <= 96) location = 'ซ.บ้านสวน-พระยาสัจจา 3';
+        else if (i >= 97 && i <= 104) location = 'ซ.บ้านสวน-พระยาสัจจา 7';
+        else if (i >= 105 && i <= 108) location = 'ซ.บ้านสวน-สุขุมวิท 11';
+        else if (i === 109) { location = 'ซ.บ้านสวน-สุขุมวิท 11'; status = 'สว่างปานกลาง'; powerPercent = 50; }
+        else if (i >= 110 && i <= 116) location = 'ซ.บ้านสวน-สุขุมวิท 11';
+        else if (i >= 117 && i <= 126) location = 'ซ.บ้านสวน-สุขุมวิท 19';
+        else if (i >= 127 && i <= 133) location = 'ซ.บ้านสวน-สุขุมวิท 21';
+        else if (i >= 134 && i <= 140) location = 'ซ.บ้านสวน-พระยาสัจจา 6';
+        else if (i === 141) { location = 'ซ.บ้านสวน-พระยาสัจจา 6'; status = 'ไฟกระพริบ'; powerPercent = 30; }
+        else if (i >= 142 && i <= 144) location = 'ซ.บ้านสวน-พระยาสัจจา 6';
+        else if (i >= 145 && i <= 154) location = 'ซ.บ้านสวน-หนองช้างคอก';
+        else if (i === 155) { location = 'ซ.บ้านสวน-หนองช้างคอก'; status = 'ไฟดับ'; powerPercent = 0; }
+        else if (i === 156) location = 'ซ.บ้านสวน-หนองช้างคอก';
+        else if (i >= 157 && i <= 180) location = 'ซ.บ้านสวน-สุขุมวิท 30';
+
+        fixtureList.push({
+          code: code,
+          location: location,
+          status: status,
+          powerPercent: powerPercent,
+          volt: (powerPercent === 0 ? 0 : (218 + Math.random() * 5)).toFixed(1),
+          amp: (powerPercent === 0 ? 0 : (0.4 + (powerPercent/100)*0.1)).toFixed(2),
+          watt: (powerPercent * 1.0).toFixed(1),
+          temp: (32 + Math.random() * 8).toFixed(1),
+          hours: 4000 + (i * 12)
+        });
+      }
+    }
+
+    // 4. Problem Tickets List
+    let problemTickets = [
+      { id: 'JOB-2027-01', fixtureCode: 'SL-032', vendor: 'ABCX Power supply', status: 'อยู่ในระหว่างปฏิบัติงาน', statusColor: 'blue', sendDate: '2027-03-01' },
+      { id: 'JOB-2027-02', fixtureCode: 'SL-016', vendor: 'Karn electric', status: 'ปฏิบัติงานเรียบร้อย', statusColor: 'green', sendDate: '2027-03-02' }
+    ];
+
+    // Current Session State
+    let currentUser = null;
+    let overviewCurrentPage = 1;
+    const OVERVIEW_PER_PAGE = 15;
+
+    // ----------------------------------------------------
+    // LIFECYCLE & NAVIGATION
+    // ----------------------------------------------------
+    window.onload = function() {
+      initFixtures();
+      // Set default date picker to today
+      document.getElementById('rpt-date-picker').valueAsDate = new Date();
+    };
+
+    function showView(viewId) {
+      document.getElementById('view-login').classList.add('hidden');
+      document.getElementById('view-dashboard').classList.add('hidden');
+      document.getElementById('view-admin').classList.add('hidden');
+
+      document.getElementById(viewId).classList.remove('hidden');
+    }
+
+    // ----------------------------------------------------
+    // PAGE 1: LOGIN LOGIC
+    // ----------------------------------------------------
+    function handleLogin(e) {
+      e.preventDefault();
+      const userVal = document.getElementById('login-username').value.trim();
+      const passVal = document.getElementById('login-password').value.trim();
+
+      // Check against User Table
+      const matched = systemUsers.find(u => u.username === userVal);
+
+      if (matched && passVal === DEFAULT_PASS) {
+        currentUser = matched;
+        
+        // Show success alert
+        alertModal('ยินดีต้อนรับเข้าสู่ระบบตรวจสอบสถานะไฟฟ้าส่องสว่าง', 'เข้าสู่ระบบสำเร็จ', () => {
+          // Open Page 2 (Dashboard)
+          document.getElementById('user-display-name').textContent = `${matched.firstname} ${matched.lastname}`;
+          document.getElementById('user-display-role').textContent = matched.role;
+          showView('view-dashboard');
+          switchDashboardTab('overview');
+        });
+      } else {
+        alertModal('ตรวจสอบ Username หรือ Password ให้ใส่ Username/ Password ใหม่', 'ข้อผิดพลาดการเข้าสู่ระบบ');
+      }
+    }
+
+    function openForgotPasswordModal() {
+      const modalHtml = `
+        <div class="space-y-4">
+          <p class="text-xs text-slate-300">กรุณาระบุ E-mail address ของคุณเพื่อรับลิงก์รีเซ็ตรหัสผ่าน:</p>
+          <div>
+            <label class="block text-xs text-cyan-300 mb-1">e-mail address:</label>
+            <input type="email" id="forgot-email" placeholder="example@domain.com" required
+              class="w-full bg-slate-950 border border-slate-700 text-white rounded-lg p-2.5 text-sm focus:border-cyan-400 focus:outline-none">
+          </div>
+        </div>
+      `;
+
+      confirmModal(modalHtml, 'Forgot Password', () => {
+        const mail = document.getElementById('forgot-email').value;
+        if (mail) {
+          alertModal('ระบบจะส่งข้อมูลไปยัง e-mail ที่ระบุ', 'แจ้งเตือน');
+        }
+      }, 'Send', 'ยกเลิก');
+    }
+
+    function handleLogout() {
+      confirmModal('คุณต้องการออกจากโปรแกรมใช่หรือไม่?', 'ยืนยันการออกจากระบบ', () => {
+        currentUser = null;
+        document.getElementById('login-username').value = '';
+        document.getElementById('login-password').value = '';
+        showView('view-login');
+      });
+    }
+
+    // ----------------------------------------------------
+    // PAGE 2: DASHBOARD LOGIC
+    // ----------------------------------------------------
+    function switchDashboardTab(tabName) {
+      // Hide all contents
+      document.querySelectorAll('.dashboard-tab-content').forEach(el => el.classList.add('hidden'));
+      
+      // Deactivate all buttons
+      document.querySelectorAll('#view-dashboard nav button').forEach(btn => {
+        btn.classList.remove('bg-cyan-500/10', 'text-cyan-400', 'font-bold');
+      });
+
+      // Show selected content & active button
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`nav-btn-${tabName}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-cyan-500/10', 'text-cyan-400', 'font-bold');
+      }
+
+      // Tab specific initializations
+      if (tabName === 'overview') {
+        renderOverviewTable();
+      } else if (tabName === 'installation') {
+        renderInstallationMap();
+      } else if (tabName === 'fixture-detail') {
+        populateFixtureSelector();
+      }
+    }
+
+    // Render Overview Table & Stats
+    function renderOverviewTable() {
+      const tbody = document.getElementById('overview-table-body');
+      const search = document.getElementById('overview-search').value.toLowerCase();
+      const statusFilter = document.getElementById('overview-filter-status').value;
+
+      let filtered = fixtureList.filter(item => {
+        const matchText = item.code.toLowerCase().includes(search) || item.location.toLowerCase().includes(search);
+        const matchStatus = (statusFilter === 'ALL') || (item.status === statusFilter);
+        return matchText && matchStatus;
+      });
+
+      // Update Stat Cards
+      document.getElementById('stat-normal-count').textContent = fixtureList.filter(i => i.status === 'สว่างปกติ').length;
+      document.getElementById('stat-blink-count').textContent = fixtureList.filter(i => i.status === 'ไฟกระพริบ').length;
+      document.getElementById('stat-low-count').textContent = fixtureList.filter(i => i.status === 'สว่างปานกลาง' || i.powerPercent === 10).length;
+      document.getElementById('stat-off-count').textContent = fixtureList.filter(i => i.status === 'ไฟดับ').length;
+      document.getElementById('stat-total-count').textContent = fixtureList.length;
+
+      // Pagination
+      const totalItems = filtered.length;
+      const totalPages = Math.ceil(totalItems / OVERVIEW_PER_PAGE) || 1;
+      if (overviewCurrentPage > totalPages) overviewCurrentPage = totalPages;
+
+      const startIndex = (overviewCurrentPage - 1) * OVERVIEW_PER_PAGE;
+      const paginated = filtered.slice(startIndex, startIndex + OVERVIEW_PER_PAGE);
+
+      document.getElementById('overview-page-info').textContent = `แสดง ${totalItems > 0 ? startIndex + 1 : 0} - ${Math.min(startIndex + OVERVIEW_PER_PAGE, totalItems)} จาก ${totalItems} รายการ`;
+      document.getElementById('overview-page-num').textContent = overviewCurrentPage;
+
+      tbody.innerHTML = '';
+      if (paginated.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">ไม่พบข้อมูลโคมไฟฟ้า</td></tr>`;
+        return;
+      }
+
+      paginated.forEach(item => {
+        let dotClass = 'status-normal';
+        if (item.status === 'ไฟดับ') dotClass = 'status-off';
+        else if (item.status === 'ไฟกระพริบ') dotClass = 'status-blink';
+        else if (item.status === 'สว่างปานกลาง' || item.powerPercent <= 50) dotClass = 'status-low';
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/60 transition';
+        tr.innerHTML = `
+          <td class="p-3 font-semibold text-cyan-300">${item.code}</td>
+          <td class="p-3 text-slate-300">${item.location}</td>
+          <td class="p-3 text-center">
+            <span class="inline-flex items-center gap-2">
+              <span class="status-dot ${dotClass}"></span>
+              <span>${item.status}</span>
+            </span>
+          </td>
+          <td class="p-3 text-center font-mono font-bold text-slate-200">${item.powerPercent}%</td>
+          <td class="p-3 text-right">
+            <button onclick="goToFixtureDetail('${item.code}')"
+              class="px-3 py-1 bg-cyan-500/20 hover:bg-cyan-500 text-cyan-300 hover:text-black font-semibold rounded border border-cyan-400/30 text-xs transition">
+              ดูข้อมูลโคมไฟฟ้า
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function changeOverviewPage(delta) {
+      overviewCurrentPage += delta;
+      renderOverviewTable();
+    }
+
+    function goToFixtureDetail(code) {
+      switchDashboardTab('fixture-detail');
+      document.getElementById('fixture-selector').value = code;
+      loadFixtureDetail(code);
+    }
+
+    // Render Installation Map
+    function renderInstallationMap() {
+      const container = document.getElementById('installation-street-groups');
+      container.innerHTML = '';
+
+      // Group fixtures by street
+      const streetGroups = {};
+      fixtureList.forEach(fix => {
+        if (!streetGroups[fix.location]) streetGroups[fix.location] = [];
+        streetGroups[fix.location].push(fix);
+      });
+
+      for (const [street, items] of Object.entries(streetGroups)) {
+        const groupEl = document.createElement('div');
+        groupEl.className = 'cyber-card p-4 rounded-xl border border-cyan-500/20 space-y-3';
+        groupEl.innerHTML = `
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <h3 class="font-bold text-sm text-cyan-300 flex items-center gap-2">
+              <i class="fa-solid fa-road text-slate-500"></i> ${street}
+            </h3>
+            <span class="text-xs text-slate-400 font-mono">${items.length} ดวง</span>
+          </div>
+          <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-10 gap-2">
+            ${items.map(item => {
+              let dotClass = 'status-normal';
+              if (item.status === 'ไฟดับ') dotClass = 'status-off';
+              else if (item.status === 'ไฟกระพริบ') dotClass = 'status-blink';
+              else if (item.status === 'สว่างปานกลาง' || item.powerPercent <= 50) dotClass = 'status-low';
+              
+              return `
+                <div onclick="goToFixtureDetail('${item.code}')"
+                  class="p-2 bg-slate-950/80 hover:bg-slate-900 border border-slate-800 rounded-lg cursor-pointer text-center transition flex flex-col items-center justify-center gap-1 group">
+                  <span class="status-dot ${dotClass}"></span>
+                  <span class="text-[10px] font-mono text-slate-300 group-hover:text-cyan-400">${item.code}</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+        container.appendChild(groupEl);
+      }
+    }
+
+    // Populate Selector & Load Detail
+    function populateFixtureSelector() {
+      const selector = document.getElementById('fixture-selector');
+      selector.innerHTML = '';
+      fixtureList.forEach(fix => {
+        const opt = document.createElement('option');
+        opt.value = fix.code;
+        opt.textContent = `${fix.code} - ${fix.location} (${fix.status})`;
+        selector.appendChild(opt);
+      });
+
+      if (fixtureList.length > 0) {
+        loadFixtureDetail(fixtureList[0].code);
+      }
+    }
+
+    function loadFixtureDetail(code) {
+      const fix = fixtureList.find(f => f.code === code);
+      if (!fix) return;
+
+      document.getElementById('detail-code').textContent = fix.code;
+      document.getElementById('detail-location').textContent = fix.location;
+      document.getElementById('detail-volt').textContent = `${fix.volt} V`;
+      document.getElementById('detail-amp').textContent = `${fix.amp} A`;
+      document.getElementById('detail-power').textContent = `${fix.watt} W`;
+      document.getElementById('detail-temp').textContent = `${fix.temp} °C`;
+      document.getElementById('detail-hours').textContent = `${fix.hours.toLocaleString()} hrs`;
+
+      // Set Brightness Select Value
+      const brightnessSel = document.getElementById('detail-brightness-select');
+      brightnessSel.value = `${fix.powerPercent}%`;
+
+      updateLampStatusUI(fix.powerPercent);
+    }
+
+    function updateFixtureBrightness(valPercentStr) {
+      const code = document.getElementById('detail-code').textContent;
+      const fix = fixtureList.find(f => f.code === code);
+      if (!fix) return;
+
+      const percent = parseInt(valPercentStr);
+      fix.powerPercent = percent;
+
+      // Update lamp electrical calculations dynamically
+      fix.watt = (percent * 1.0).toFixed(1);
+      fix.amp = (percent === 0 ? 0 : (0.4 + (percent/100)*0.1)).toFixed(2);
+      fix.volt = percent === 0 ? 0 : 220.0;
+
+      // Sync status text
+      if (percent === 100) fix.status = 'สว่างปกติ';
+      else if (percent >= 60) fix.status = 'สว่าง';
+      else if (percent >= 50) fix.status = 'สว่างปานกลาง';
+      else if (percent > 0) fix.status = 'สว่างน้อย';
+      else fix.status = 'ไฟดับ';
+
+      loadFixtureDetail(code);
+    }
+
+    function updateLampStatusUI(percent) {
+      const statusText = document.getElementById('detail-lamp-status-text');
+      const statusDot = document.getElementById('detail-status-dot');
+      const badge = document.getElementById('detail-power-percent-badge');
+
+      badge.textContent = `${percent}%`;
+      statusDot.className = 'status-dot';
+
+      if (percent === 100) {
+        statusText.textContent = 'สว่างมาก';
+        statusText.className = 'text-lg font-bold text-emerald-400';
+        statusDot.classList.add('status-normal');
+      } else if (percent === 75 || percent === 60) {
+        statusText.textContent = 'สว่าง';
+        statusText.className = 'text-lg font-bold text-emerald-300';
+        statusDot.classList.add('status-normal');
+      } else if (percent === 50) {
+        statusText.textContent = 'สว่างปานกลาง';
+        statusText.className = 'text-lg font-bold text-amber-400';
+        statusDot.classList.add('status-low');
+      } else if (percent === 20 || percent === 10) {
+        statusText.textContent = 'สว่างน้อย';
+        statusText.className = 'text-lg font-bold text-orange-400';
+        statusDot.classList.add('status-low');
+      } else {
+        statusText.textContent = 'ไม่สว่าง';
+        statusText.className = 'text-lg font-bold text-rose-500';
+        statusDot.classList.add('status-off');
+      }
+    }
+
+    // Export Reports PDF/CSV
+    function exportReport(format) {
+      if (format === 'CSV') {
+        let csvContent = "data:text/csv;charset=utf-8,รหัสโคมไฟ,สถานที่ติดตั้ง,สถานะ,กำลังไฟ(%)\n";
+        fixtureList.forEach(f => {
+          csvContent += `${f.code},${f.location},${f.status},${f.powerPercent}%\n`;
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `Report_Streetlight_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        alertModal('ส่งออกไฟล์ CSV สำเร็จเรียบร้อยแล้ว', 'สำเร็จ');
+      } else if (format === 'PDF') {
+        window.print();
+      }
+    }
+
+    // Administrator Menu Guard
+    function handleAdminMenuClick() {
+      if (!currentUser || (currentUser.role !== 'Admin' && currentUser.role !== 'ผู้ดูแลระบบ')) {
+        alertModal('สิทธิ์การเข้าถึงถูกปฏิเสธ! เข้าใช้ได้เฉพาะผู้มีสิทธิ์ "Admin" หรือ "ผู้ดูแลระบบ" เท่านั้น', 'คำเตือนสิทธิ์การใช้งาน');
+        return;
+      }
+      showView('view-admin');
+      switchAdminTab('users');
+    }
+
+    // ----------------------------------------------------
+    // PROBLEM REPORT MODAL & WORKFLOW
+    // ----------------------------------------------------
+    function openProblemReportModal() {
+      document.getElementById('modal-problem-report').classList.remove('hidden');
+      switchProblemTab('list');
+    }
+
+    function closeProblemReportModal() {
+      document.getElementById('modal-problem-report').classList.add('hidden');
+    }
+
+    function switchProblemTab(tabId) {
+      document.querySelectorAll('.prob-tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('#modal-problem-report button[id^="prob-tab-btn-"]').forEach(btn => {
+        btn.classList.remove('text-rose-400', 'border-rose-500', 'text-cyan-400', 'border-cyan-500', 'text-emerald-400', 'border-emerald-500');
+        btn.classList.add('text-slate-400', 'border-transparent');
+      });
+
+      document.getElementById(`prob-sub-${tabId}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`prob-tab-btn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-400', 'border-transparent');
+        activeBtn.classList.add('text-rose-400', 'border-rose-500');
+      }
+
+      if (tabId === 'list') renderProblemFixturesList();
+      else if (tabId === 'track') renderProblemTrackList();
+      else if (tabId === 'close') renderProblemCloseList();
+    }
+
+    function renderProblemFixturesList() {
+      const tbody = document.getElementById('problem-fixtures-body');
+      tbody.innerHTML = '';
+
+      // Filter lamps < 100%
+      const problems = fixtureList.filter(f => f.powerPercent < 100);
+
+      if (problems.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">ไม่มีรายการโคมไฟฟ้าที่มีปัญหา</td></tr>`;
+        return;
+      }
+
+      problems.forEach(item => {
+        let statusText = 'สว่างน้อย';
+        if (item.powerPercent === 0) statusText = 'ไม่สว่าง (ไฟดับ)';
+        else if (item.powerPercent === 50) statusText = 'สว่างปานกลาง';
+        else if (item.status === 'ไฟกระพริบ') statusText = 'ไฟกระพริบ';
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/60 transition';
+        tr.innerHTML = `
+          <td class="p-3 font-semibold text-rose-400">${item.code}</td>
+          <td class="p-3 text-slate-300">${item.location}</td>
+          <td class="p-3 font-mono font-bold text-amber-400">${item.powerPercent}%</td>
+          <td class="p-3 text-slate-200">${statusText}</td>
+          <td class="p-3 text-right">
+            <button onclick="openSelectVendorStep('${item.code}')"
+              class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded text-xs shadow transition">
+              แจ้งซ่อม
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openSelectVendorStep(fixtureCode) {
+      const modalContent = `
+        <div class="space-y-4">
+          <p class="text-xs text-slate-300">เลือกผู้ให้บริการ (Outsource) เพื่อรับงานซ่อมโคมไฟ <strong>${fixtureCode}</strong>:</p>
+          <div class="max-h-60 overflow-y-auto border border-slate-800 rounded-lg">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900 text-cyan-300">
+                <tr>
+                  <th class="p-2">เลือก</th>
+                  <th class="p-2">ลำดับ</th>
+                  <th class="p-2">บริษัท</th>
+                  <th class="p-2">ที่ตั้ง</th>
+                  <th class="p-2">หน้าที่ความรับผิดชอบ</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800 text-slate-300">
+                ${outsourceVendors.map(v => `
+                  <tr>
+                    <td class="p-2 text-center">
+                      <input type="radio" name="selected-vendor" value="${v.company}" checked class="text-cyan-500">
+                    </td>
+                    <td class="p-2 font-mono">${v.id}</td>
+                    <td class="p-2 font-bold text-white">${v.company}</td>
+                    <td class="p-2">${v.location}</td>
+                    <td class="p-2">${v.duty}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      confirmModal(modalContent, 'เลือกผู้ให้บริการซ่อมบำรุง', () => {
+        const selectedComp = document.querySelector('input[name="selected-vendor"]:checked')?.value || outsourceVendors[0].company;
+        openSendEmailStep(fixtureCode, selectedComp);
+      }, 'ตกลง', 'ยกเลิก');
+    }
+
+    function openSendEmailStep(fixtureCode, vendorCompany) {
+      const modalContent = `
+        <div class="space-y-3">
+          <p class="text-xs text-emerald-400 font-bold"><i class="fa-solid fa-circle-check"></i> ยืนยันการเลือกผู้ให้บริการ: ${vendorCompany}</p>
+          <div>
+            <label class="block text-xs text-slate-300 mb-1">e-mail address ผู้ให้บริการ:</label>
+            <input type="email" id="vendor-dispatch-email" value="service@${vendorCompany.toLowerCase().replace(/\s+/g,'')}.com" required
+              class="w-full bg-slate-950 border border-slate-700 text-white rounded-lg p-2.5 text-sm focus:border-cyan-400 focus:outline-none">
+          </div>
+        </div>
+      `;
+
+      confirmModal(modalContent, 'ยืนยันการส่งข้อมูลแจ้งซ่อม', () => {
+        const mail = document.getElementById('vendor-dispatch-email').value;
+        
+        // Add new ticket
+        const newId = `JOB-2027-${String(problemTickets.length + 1).padStart(2, '0')}`;
+        problemTickets.push({
+          id: newId,
+          fixtureCode: fixtureCode,
+          vendor: vendorCompany,
+          status: 'มอบหมายงานแล้ว',
+          statusColor: 'orange',
+          sendDate: new Date().toISOString().slice(0, 10)
+        });
+
+        alertModal(`ระบบได้ทำการส่งอีเมลแจ้งงานไปยัง ${mail} เรียบร้อยแล้ว`, 'ส่งงานเรียบร้อย');
+        switchProblemTab('track');
+      }, 'Send', 'ยกเลิก');
+    }
+
+    function renderProblemTrackList() {
+      const tbody = document.getElementById('problem-track-body');
+      tbody.innerHTML = '';
+
+      problemTickets.forEach(item => {
+        let badgeClass = 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
+        if (item.statusColor === 'orange') badgeClass = 'bg-orange-500/20 text-orange-300 border-orange-500/30';
+        else if (item.statusColor === 'blue') badgeClass = 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30';
+        else if (item.statusColor === 'green') badgeClass = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/60 transition';
+        tr.innerHTML = `
+          <td class="p-3 font-mono font-bold text-cyan-300">${item.id}</td>
+          <td class="p-3 text-white font-semibold">${item.fixtureCode}</td>
+          <td class="p-3 text-slate-300">${item.vendor}</td>
+          <td class="p-3 text-center">
+            <span class="px-2 py-1 rounded border ${badgeClass} text-[10px] font-bold">${item.status}</span>
+          </td>
+          <td class="p-3 text-right">
+            <button onclick="inspectTaskSimulation('${item.id}')"
+              class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded border border-slate-700 text-xs transition">
+              ตรวจสอบงาน
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function inspectTaskSimulation(jobId) {
+      const job = problemTickets.find(j => j.id === jobId);
+      if (!job) return;
+
+      const detailHtml = `
+        <div class="space-y-3 text-xs text-slate-300">
+          <div class="p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-lg space-y-1">
+            <p class="font-bold text-emerald-400 text-sm">สถานะ: ปฏิบัติงานเรียบร้อย</p>
+            <p><strong>ผู้ให้บริการ:</strong> ${job.vendor}</p>
+            <p><strong>วันที่ส่งงาน:</strong> ${job.sendDate}</p>
+            <p><strong>ผลการตรวจสอบ:</strong> ดำเนินการเปลี่ยนหลอดไฟ LED 100W และทดสอบแรงดันไฟฟ้าปกติแล้ว</p>
+          </div>
+        </div>
+      `;
+
+      alertModal(detailHtml, `รายละเอียดการตรวจสอบงาน ${job.id}`);
+    }
+
+    function renderProblemCloseList() {
+      const tbody = document.getElementById('problem-close-body');
+      tbody.innerHTML = '';
+
+      const readyToClose = problemTickets.filter(j => j.status === 'ปฏิบัติงานเรียบร้อย');
+
+      if (readyToClose.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">ไม่มีรายการงานที่รอการปิดงาน</td></tr>`;
+        return;
+      }
+
+      readyToClose.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/60 transition';
+        tr.innerHTML = `
+          <td class="p-3 font-mono font-bold text-emerald-300">${item.id}</td>
+          <td class="p-3 text-white font-semibold">${item.fixtureCode}</td>
+          <td class="p-3 text-slate-300">${item.vendor}</td>
+          <td class="p-3 font-mono text-slate-400">${item.sendDate}</td>
+          <td class="p-3 text-right">
+            <button onclick="promptCloseTask('${item.id}')"
+              class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded text-xs transition">
+              ปิดงาน
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function promptCloseTask(jobId) {
+      confirmModal('คุณยืนยันการปิดงานซ่อมไฟฟ้านี้ใช่หรือไม่?', 'ยืนยันการปิดงาน', () => {
+        promptRatingStep(jobId);
+      }, 'OK', 'ยกเลิก');
+    }
+
+    function promptRatingStep(jobId) {
+      const ratingHtml = `
+        <div class="space-y-4 text-center">
+          <p class="text-xs text-slate-300">ให้คะแนนการปฏิบัติงานของผู้ให้บริการ:</p>
+          <div class="flex justify-center gap-3">
+            ${['10', '7', '5', '3', '1'].map(score => `
+              <label class="cursor-pointer">
+                <input type="radio" name="close-score" value="${score}" ${score === '10' ? 'checked' : ''} class="peer hidden">
+                <span class="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white font-bold text-sm peer-checked:bg-amber-500 peer-checked:text-black peer-checked:border-amber-400 block transition">
+                  ${score}
+                </span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      confirmModal(ratingHtml, 'ประเมินความพึงพอใจการให้บริการ', () => {
+        // Remove ticket from list & update lamp back to 100%
+        const job = problemTickets.find(j => j.id === jobId);
+        if (job) {
+          const fix = fixtureList.find(f => f.code === job.fixtureCode);
+          if (fix) {
+            fix.powerPercent = 100;
+            fix.status = 'สว่างปกติ';
+          }
+          problemTickets = problemTickets.filter(j => j.id !== jobId);
+        }
+
+        alertModal('ขอบคุณสำหรับข้อมูลการประเมิน', 'ปิดงานเรียบร้อย', () => {
+          switchProblemTab('close');
+          renderOverviewTable();
+        });
+      }, 'ให้คะแนน', 'ยกเลิก');
+    }
+
+    // ----------------------------------------------------
+    // PAGE 3: ADMINISTRATOR CONTROLS
+    // ----------------------------------------------------
+    function exitAdminView() {
+      showView('view-dashboard');
+      switchDashboardTab('overview');
+    }
+
+    function switchAdminTab(tabName) {
+      document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('#view-admin nav button').forEach(btn => {
+        btn.classList.remove('bg-amber-500/10', 'text-amber-400', 'font-bold');
+      });
+
+      document.getElementById(`admin-tab-${tabName}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`admin-nav-${tabName}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-amber-500/10', 'text-amber-400', 'font-bold');
+      }
+
+      if (tabName === 'users') renderAdminUsersTable();
+      else if (tabName === 'fixtures') renderAdminFixturesTable();
+      else if (tabName === 'outsource') renderAdminOutsourceTable();
+    }
+
+    // Admin Users Table
+    function renderAdminUsersTable() {
+      const tbody = document.getElementById('admin-users-table-body');
+      tbody.innerHTML = '';
+
+      systemUsers.forEach(u => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/60 transition';
+        tr.innerHTML = `
+          <td class="p-3 font-mono font-bold text-amber-400">${u.id}</td>
+          <td class="p-3 font-semibold text-white">${u.firstname} ${u.lastname}</td>
+          <td class="p-3 text-slate-300">${u.department}</td>
+          <td class="p-3 font-mono text-cyan-300">${u.username}</td>
+          <td class="p-3 text-amber-200">${u.role}</td>
+          <td class="p-3"><span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 rounded text-[10px]">${u.status}</span></td>
+          <td class="p-3 text-right">
+            <select onchange="handleUserAction(${u.id}, this.value)" class="bg-slate-950 border border-slate-700 text-xs text-white rounded p-1">
+              <option value="">จัดการผู้ใช้</option>
+              <option value="delete">ลบ</option>
+              <option value="suspend">ยกเลิกชั่วคราว</option>
+            </select>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function handleUserAction(userId, action) {
+      if (!action) return;
+      confirmModal('คุณต้องการลบผู้ใช้งาน หรือไม่?', 'ยืนยันการจัดการผู้ใช้', () => {
+        systemUsers = systemUsers.filter(u => u.id !== userId);
+        renderAdminUsersTable();
+        alertModal('ดำเนินการลบผู้ใช้งานสำเร็จแล้ว', 'แจ้งเตือน');
+      }, 'ลบ', 'ยกเลิก');
+    }
+
+    function openAddUserModal() {
+      const nextId = systemUsers.length + 1;
+      const formHtml = `
+        <form id="add-user-form" class="space-y-3 text-left">
+          <div><label class="block text-xs text-slate-400">L1: เลขที่ผู้ใช้งาน</label><input type="text" value="${nextId}" readonly class="w-full bg-slate-900 border border-slate-700 text-amber-400 font-mono rounded p-2 text-xs"></div>
+          <div class="grid grid-cols-2 gap-2">
+            <div><label class="block text-xs text-slate-400">L2: ชื่อ</label><input type="text" id="new-fname" required class="w-full bg-slate-950 border border-slate-700 text-white rounded p-2 text-xs"></div>
+            <div><label class="block text-xs text-slate-400">นามสกุล</label><input type="text" id="new-lname" required class="w-full bg-slate-950 border border-slate-700 text-white rounded p-2 text-xs"></div>
+          </div>
+          <div><label class="block text-xs text-slate-400">L3: แผนก</label><input type="text" id="new-dept" required class="w-full bg-slate-950 border border-slate-700 text-white rounded p-2 text-xs"></div>
+          <div>
+            <label class="block text-xs text-slate-400">L4: สิทธิการใช้งาน</label>
+            <select id="new-role" class="w-full bg-slate-950 border border-slate-700 text-white rounded p-2 text-xs">
+              <option value="ผู้ใช้งาน">ผู้ใช้งาน</option>
+              <option value="ผู้ตรวจสอบภายใน">ผู้ตรวจสอบภายใน</option>
+              <option value="ผู้ดูแลระบบ">ผู้ดูแลระบบ</option>
+            </select>
+          </div>
+        </form>
+      `;
+
+      confirmModal(formHtml, 'เพิ่มผู้ใช้งานใหม่', () => {
+        const fname = document.getElementById('new-fname').value.trim();
+        const lname = document.getElementById('new-lname').value.trim();
+        const dept = document.getElementById('new-dept').value.trim();
+        const role = document.getElementById('new-role').value;
+
+        if (fname && lname) {
+          systemUsers.push({
+            id: nextId,
+            firstname: fname,
+            lastname: lname,
+            username: fname.toLowerCase(),
+            department: dept,
+            role: role,
+            status: 'ใช้งาน'
+          });
+          renderAdminUsersTable();
+          alertModal('เพิ่มผู้ใช้งานใหม่สำเร็จ', 'สำเร็จ');
+        }
+      }, 'OK', 'ยกเลิก');
+    }
+
+    // Admin Fixtures Table
+    function renderAdminFixturesTable() {
+      const tbody = document.getElementById('admin-fixtures-table-body');
+      tbody.innerHTML = '';
+
+      fixtureList.forEach((fix, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/60 transition';
+        tr.innerHTML = `
+          <td class="p-3 font-mono font-bold text-cyan-300">${idx + 1}. ${fix.code}</td>
+          <td class="p-3 text-slate-300">${fix.location}</td>
+          <td class="p-3 text-amber-400 font-medium">${fix.status} (${fix.powerPercent}%)</td>
+          <td class="p-3 text-right">
+            <select onchange="handleFixtureDelete('${fix.code}', this.value)" class="bg-slate-950 border border-slate-700 text-xs text-rose-400 rounded p-1">
+              <option value="">ตัวเลือก</option>
+              <option value="delete">ลบ</option>
+            </select>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function handleFixtureDelete(code, val) {
+      if (val !== 'delete') return;
+      confirmModal('คุณต้องการลบอุปกรณ์โคมไฟฟ้าใช่หรือไม่?', 'ยืนยันการลบโคมไฟฟ้า', () => {
+        fixtureList = fixtureList.filter(f => f.code !== code);
+        renderAdminFixturesTable();
+        alertModal(`ลบอุปกรณ์ ${code} เรียบร้อยแล้ว`, 'สำเร็จ');
+      }, 'ลบ', 'ยกเลิก');
+    }
+
+    function openAddFixtureModal() {
+      const nextNum = fixtureList.length + 1;
+      const codeSuggestion = `SL-${String(nextNum).padStart(3, '0')}`;
+      const formHtml = `
+        <form class="space-y-3 text-left">
+          <div><label class="block text-xs text-slate-400">L1: ลำดับอัตโนมัติ</label><input type="text" value="${nextNum}" readonly class="w-full bg-slate-900 border border-slate-700 text-amber-400 font-mono rounded p-2 text-xs"></div>
+          <div><label class="block text-xs text-slate-400">L2: ชื่อโคมไฟฟ้า</label><input type="text" id="new-fix-code" value="${codeSuggestion}" class="w-full bg-slate-950 border border-slate-700 text-white rounded p-2 text-xs"></div>
+          <div><label class="block text-xs text-slate-400">L3: สถานที่ติดตั้ง</label><input type="text" id="new-fix-loc" placeholder="ชื่อถนน / ซอย" required class="w-full bg-slate-950 border border-slate-700 text-white rounded p-2 text-xs"></div>
+        </form>
+      `;
+
+      confirmModal(formHtml, 'เพิ่มโคมไฟฟ้าใหม่', () => {
+        const code = document.getElementById('new-fix-code').value.trim();
+        const loc = document.getElementById('new-fix-loc').value.trim();
+
+        if (code && loc) {
+          fixtureList.push({
+            code: code,
+            location: loc,
+            status: 'สว่างปกติ',
+            powerPercent: 100,
+            volt: '220.0',
+            amp: '0.45',
+            watt: '100.0',
+            temp: '36.0',
+            hours: 0
+          });
+          renderAdminFixturesTable();
+          alertModal('เพิ่มอุปกรณ์โคมไฟฟ้าสำเร็จ', 'สำเร็จ');
+        }
+      }, 'OK', 'ยกเลิก');
+    }
+
+    // Log Server Form Save
+    function handleLogServerSave(e) {
+      e.preventDefault();
+      alertModal('บันทึกการตั้งค่า Log Server เรียบร้อยแล้ว', 'สำเร็จ');
+    }
+
+    // Admin Outsource Table
+    function renderAdminOutsourceTable() {
+      const tbody = document.getElementById('admin-outsource-table-body');
+      tbody.innerHTML = '';
+
+      outsourceVendors.forEach(v => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/60 transition';
+        tr.innerHTML = `
+          <td class="p-3 font-mono text-amber-400">${v.id}</td>
+          <td class="p-3 font-bold text-white">${v.company}</td>
+          <td class="p-3 text-slate-300">${v.location}</td>
+          <td class="p-3 text-cyan-300">${v.duty}</td>
+          <td class="p-3 text-slate-300">${v.area1}</td>
+          <td class="p-3 text-slate-300">${v.area2}</td>
+          <td class="p-3 text-center font-bold text-emerald-400 font-mono">${v.kpi}</td>
+          <td class="p-3 text-right">
+            <select onchange="handleOutsourceAction(${v.id}, this.value)" class="bg-slate-950 border border-slate-700 text-xs text-white rounded p-1">
+              <option value="">จัดการผู้รับจ้าง</option>
+              <option value="delete">ลบ</option>
+              <option value="pause">หยุดชั่วคราว</option>
+            </select>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function handleOutsourceAction(id, action) {
+      if (!action) return;
+      confirmModal('คุณต้องการลบผู้ให้บริการ หรือไม่?', 'คำเตือน', () => {
+        outsourceVendors = outsourceVendors.filter(v => v.id !== id);
+        renderAdminOutsourceTable();
+        alertModal('ลบผู้ให้บริการเรียบร้อยแล้ว', 'สำเร็จ');
+      }, 'ลบ', 'ยกเลิก');
+    }
+
+    function openAddOutsourceModal() {
+      const nextId = outsourceVendors.length + 1;
+      const formHtml = `
+        <form class="space-y-3 text-left">
+          <div><label class="block text-xs text-slate-400">L1: เลขลำดับ</label><input type="text" value="${nextId}" readonly class="w-full bg-slate-900 border border-slate-700 text-amber-400 font-mono rounded p-2 text-xs"></div>
+          <div><label class="block text-xs text-slate-400">L2: บริษัท</label><input type="text" id="new-vendor-comp" placeholder="ชื่อบริษัท" required class="w-full bg-slate-950 border border-slate-700 text-white rounded p-2 text-xs"></div>
+          <div><label class="block text-xs text-slate-400">L3: ที่ตั้ง</label><input type="text" id="new-vendor-loc" placeholder="ที่ตั้งสำนักงาน" required class="w-full bg-slate-950 border border-slate-700 text-white rounded p-2 text-xs"></div>
+          <div>
+            <label class="block text-xs text-slate-400">L4: งานที่รับผิดชอบ</label>
+            <select id="new-vendor-duty" class="w-full bg-slate-950 border border-slate-700 text-white rounded p-2 text-xs">
+              <option value="สายไฟฟ้า">สายไฟฟ้า</option>
+              <option value="หลอดไฟฟ้า">หลอดไฟฟ้า</option>
+              <option value="โปรแกรมระบบตรวจสอบ">โปรแกรมระบบตรวจสอบ</option>
+            </select>
+          </div>
+          <div><label class="block text-xs text-slate-400">L5: พื้นที่รับผิดชอบ 1</label><input type="text" id="new-vendor-area1" placeholder="เช่น ถนนสุขุมวิท" class="w-full bg-slate-950 border border-slate-700 text-white rounded p-2 text-xs"></div>
+          <div><label class="block text-xs text-slate-400">L6: พื้นที่รับผิดชอบ 2</label><input type="text" id="new-vendor-area2" placeholder="เช่น ถนนพระยาสัจจา" class="w-full bg-slate-950 border border-slate-700 text-white rounded p-2 text-xs"></div>
+        </form>
+      `;
+
+      confirmModal(formHtml, 'จัดการผู้รับจ้าง (เพิ่มผู้รับจ้าง)', () => {
+        const comp = document.getElementById('new-vendor-comp').value.trim();
+        const loc = document.getElementById('new-vendor-loc').value.trim();
+        const duty = document.getElementById('new-vendor-duty').value;
+        const area1 = document.getElementById('new-vendor-area1').value.trim();
+        const area2 = document.getElementById('new-vendor-area2').value.trim();
+
+        if (comp) {
+          outsourceVendors.push({
+            id: nextId,
+            company: comp,
+            location: loc,
+            duty: duty,
+            area1: area1,
+            area2: area2,
+            kpi: 9.0,
+            status: 'ปกติ'
+          });
+          renderAdminOutsourceTable();
+          alertModal('เพิ่มผู้ให้บริการเรียบร้อยแล้ว', 'สำเร็จ');
+        }
+      }, 'OK', 'ยกเลิก');
+    }
+
+    // ----------------------------------------------------
+    // GLOBAL MODAL UTILITIES (No native alert() used)
+    // ----------------------------------------------------
+    function alertModal(messageHtml, title = 'แจ้งเตือน', callback = null) {
+      const modal = document.getElementById('global-modal');
+      document.getElementById('global-modal-title').innerHTML = `<i class="fa-solid fa-circle-info text-cyan-400"></i> ${title}`;
+      document.getElementById('global-modal-body').innerHTML = typeof messageHtml === 'string' ? messageHtml : '';
+      if (typeof messageHtml !== 'string') {
+        document.getElementById('global-modal-body').appendChild(messageHtml);
+      }
+
+      const actions = document.getElementById('global-modal-actions');
+      actions.innerHTML = `
+        <button id="modal-ok-btn" class="px-5 py-2 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold rounded-lg text-xs shadow-md transition">
+          ตกลง
+        </button>
+      `;
+
+      modal.classList.remove('hidden');
+
+      document.getElementById('modal-ok-btn').onclick = function() {
+        modal.classList.add('hidden');
+        if (callback) callback();
+      };
+    }
+
+    function confirmModal(bodyHtml, title = 'ยืนยัน', onConfirm = null, confirmText = 'ตกลง', cancelText = 'ยกเลิก') {
+      const modal = document.getElementById('global-modal');
+      document.getElementById('global-modal-title').innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-400"></i> ${title}`;
+      document.getElementById('global-modal-body').innerHTML = bodyHtml;
+
+      const actions = document.getElementById('global-modal-actions');
+      actions.innerHTML = `
+        <button id="modal-cancel-btn" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-lg text-xs transition">
+          ${cancelText}
+        </button>
+        <button id="modal-confirm-btn" class="px-5 py-2 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold rounded-lg text-xs shadow-md transition">
+          ${confirmText}
+        </button>
+      `;
+
+      modal.classList.remove('hidden');
+
+      document.getElementById('modal-cancel-btn').onclick = function() {
+        modal.classList.add('hidden');
+      };
+
+      document.getElementById('modal-confirm-btn').onclick = function() {
+        modal.classList.add('hidden');
+        if (onConfirm) onConfirm();
+      };
+    }
+  </script>
+</body>
+</html>
