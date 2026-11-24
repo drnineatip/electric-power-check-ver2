@@ -8,8 +8,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts Prompt -->
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Thai Fonts Sarabun -->
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <script>
     tailwind.config = {
@@ -17,7 +17,7 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Prompt', 'sans-serif'],
+            Sarabun: ['Sarabun', 'sans-serif'],
           },
           colors: {
             cyber: {
@@ -41,7 +41,7 @@
     body {
       background-color: #060913;
       color: #e2e8f0;
-      font-family: 'Prompt', sans-serif;
+      font-family: 'Sarabun', sans-serif;
       overflow-x: hidden;
     }
     
@@ -139,7 +139,7 @@
               <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-cyan-400/60">
                 <i class="fa-solid fa-user"></i>
               </span>
-              <input type="text" id="login-username" required placeholder="ป้อน Username"
+              <input type="text" id="login-username" required placeholder="ระบุ Username"
                 class="w-full pl-10 pr-4 py-2.5 bg-slate-900/90 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition">
             </div>
           </div>
@@ -150,7 +150,7 @@
               <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-cyan-400/60">
                 <i class="fa-solid fa-lock"></i>
               </span>
-              <input type="password" id="login-password" required placeholder="ป้อน Password"
+              <input type="password" id="login-password" required placeholder="ระบุ Password"
                 class="w-full pl-10 pr-4 py-2.5 bg-slate-900/90 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition">
             </div>
           </div>
